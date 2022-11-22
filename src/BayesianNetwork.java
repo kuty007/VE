@@ -18,44 +18,41 @@ public class BayesianNetwork {
     public void loadBnFromXml(String path){
         BN = new HashMap<String,Variable>();
         try{
-            DocumentBuilderFactory db = DocumentBuilderFactory.newInstance();
-            DocumentBuilder dBuilder = db.newDocumentBuilder();
-            Document doc = dBuilder.parse(new File(path));
-            doc.getDocumentElement().normalize();
-            NodeList defNodes = doc.getElementsByTagName("DEFINITION");
-            NodeList varList = doc.getElementsByTagName("VARIABLE");
-            for(int i = 0; i < varList.getLength(); i++){
-                Node nNode = varList.item(i);
-                if(nNode.getNodeType() == Node.ELEMENT_NODE){
-                    Element eElement = (Element) nNode;
-                    String name = eElement.getElementsByTagName("NAME").item(0).getTextContent();
+            DocumentBuilderFactory db = DocumentBuilderFactory.newInstance();//create a new instance of DocumentBuilderFactory
+            DocumentBuilder dBuilder = db.newDocumentBuilder();//create a new instance of DocumentBuilder
+            Document doc = dBuilder.parse(new File(path));//parse the xml file
+            doc.getDocumentElement().normalize();//normalize the xml file
+            NodeList defNodes = doc.getElementsByTagName("DEFINITION");//get all the definition nodes
+            NodeList varList = doc.getElementsByTagName("VARIABLE");//get all the variable nodes
+            for(int i = 0; i < varList.getLength(); i++){//for each variable node
+                Node nNode = varList.item(i);//get the node
+                if(nNode.getNodeType() == Node.ELEMENT_NODE){//if the node is an element
+                    Element eElement = (Element) nNode;//cast the node to an element
+                    String name = eElement.getElementsByTagName("NAME").item(0).getTextContent();//get the name of the variable
                     System.out.println(name);
                     NodeList outcomes = eElement.getElementsByTagName("OUTCOME");//outcomes of the variable
-                    String[] outcomesArray = new String[outcomes.getLength()];
+                    String[] outcomesArray = new String[outcomes.getLength()];//create an array of outcomes
                     for(int j = 0; j < outcomes.getLength(); j++){
                         outcomesArray[j] = outcomes.item(j).getTextContent();
                     }
-                    Variable var = new Variable(name, outcomesArray, BN);
-                    BN.put(name, var);
+                    Variable var = new Variable(name, outcomesArray, BN);//create a new variable
+                    BN.put(name, var);//add the variable to the hashmap
                 }
             }
-            for (int i = 0; i <defNodes.getLength(); i++) {
-                Node nNode = defNodes.item(i);
-                if(nNode.getNodeType() == Node.ELEMENT_NODE){
-                    Element eElement = (Element) nNode;
-                    String name = eElement.getElementsByTagName("FOR").item(0).getTextContent();
-                    NodeList parents = eElement.getElementsByTagName("GIVEN");
-                    for(int j = 0; j < parents.getLength(); j++){
-                        String parent = parents.item(j).getTextContent();
-                        BN.get(name).parents.add(parent);
-                        BN.get(parent).sons.add(name);
+            for (int i = 0; i <defNodes.getLength(); i++) {//for each definition node
+                Node nNode = defNodes.item(i);//get the node
+                if(nNode.getNodeType() == Node.ELEMENT_NODE){//if the node is an element
+                    Element eElement = (Element) nNode;//cast the node to an element
+                    String name = eElement.getElementsByTagName("FOR").item(0).getTextContent();//get the name of the variable
+                    NodeList parents = eElement.getElementsByTagName("GIVEN");//get the parents of the variable
+                    for(int j = 0; j < parents.getLength(); j++){//for each parent
+                        String parent = parents.item(j).getTextContent();//get the name of the parent
+                        BN.get(name).parents.add(parent);//add the parent to the parents list of the variable
+                        BN.get(parent).sons.add(name);//add the variable to the sons list of the parent
                     }
                     NodeList cpt = eElement.getElementsByTagName("TABLE");
-                    String[] cptArray = cpt.item(0).getTextContent().split(" ");
-                    BN.get(name).buildCpt(cptArray);
-
-//                    for(int j = 0; j < cptArray.length; j++){
-//                        BN.get(name).cpt.put(BN.get(name).outcomes.get(j), Double.parseDouble(cptArray[j]));
+                    String[] cptArray = cpt.item(0).getTextContent().split(" ");//cpt results of the variable
+                    BN.get(name).buildCpt(cptArray);//build the cpt of the variable
                     }
                 }
 
