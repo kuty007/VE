@@ -34,7 +34,6 @@ public class BayesianNetwork {
                     String[] outcomesArray = new String[outcomes.getLength()];
                     for(int j = 0; j < outcomes.getLength(); j++){
                         outcomesArray[j] = outcomes.item(j).getTextContent();
-                        System.out.println(outcomesArray[j]);
                     }
                     Variable var = new Variable(name, outcomesArray, BN);
                     BN.put(name, var);

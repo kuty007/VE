@@ -31,7 +31,7 @@ public class Variable {
                 int i = 0, j = 0, counter = 0;
                 while (i < keysNames.length) {
                     if (counter < step_size) {
-                        keysNames[i] += bn.get(parent).name + bn.get(parent).outcomes.get(j);
+                        keysNames[i] += bn.get(parent).name +":"+ bn.get(parent).outcomes.get(j) + " ";
                         counter++;
                         i++;
                     } else {
@@ -42,7 +42,7 @@ public class Variable {
                 }
             }
             for (int i = 0; i <total_rows; i++) {
-                keysNames[i] += this.name + this.outcomes.get(i % this.outcomes.size());
+                keysNames[i] += this.name +":"+ this.outcomes.get(i % this.outcomes.size());
                 this.cpt.put(keysNames[i], Double.parseDouble(cptArray[i]));
             }
         }
