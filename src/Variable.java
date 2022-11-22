@@ -20,21 +20,10 @@ public class Variable {
 
     }
 
-    public String[] buildCpt(String[] cptArray) {
+    public void buildCpt(String[] cptArray) {
         String[] keysNames = new String[cptArray.length];
         Arrays.fill(keysNames, "");
-
-//        int numOfOutcomes = outcomes.size();
-//        int numOfParents = parents.size();
-//        int total_rows = numOfOutcomes;
-//        for (String parent : parents) {
-//            total_rows *= bn.get(parent).outcomes.size();
-//        }
-//        int numOfCols = numOfOutcomes;
-//        int numOfCells = total_rows * numOfCols;
-//        System.out.println(total_rows);
         int total_rows = cptArray.length;
-
         if (total_rows > this.outcomes.size()) {
             int step_size = cptArray.length;
             for (String parent : parents) {
@@ -52,10 +41,12 @@ public class Variable {
                     }
                 }
             }
+            for (int i = 0; i <total_rows; i++) {
+                keysNames[i] += this.name + this.outcomes.get(i % this.outcomes.size());
+                this.cpt.put(keysNames[i], Double.parseDouble(cptArray[i]));
+            }
         }
-        return keysNames;
     }
-
 }
 
 
