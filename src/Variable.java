@@ -17,6 +17,7 @@ public class Variable {
         this.outcomes.addAll(Arrays.asList(outcomes));
         this.bn = bn;
     }
+
     public void buildCpt(String[] cptArray) {
         String[] keysNames = new String[cptArray.length];//create an array of keys names
         Arrays.fill(keysNames, "");//fill the array with empty strings
@@ -28,7 +29,7 @@ public class Variable {
                 int i = 0, j = 0, counter = 0;//initialize counters
                 while (i < keysNames.length) {//while the counter is less than the length of the array
                     if (counter < step_size) {//if the counter is less than the step size
-                        keysNames[i] += bn.get(parent).name +"="+ bn.get(parent).outcomes.get(j) + " ";//add the name of the parent and the outcome to the key name
+                        keysNames[i] += bn.get(parent).name + "=" + bn.get(parent).outcomes.get(j) + " ";//add the name of the parent and the outcome to the key name
                         counter++;
                         i++;
                     } else {//if the counter is greater than the step size
@@ -38,11 +39,12 @@ public class Variable {
                     }
                 }
             }
-            for (int i = 0; i <total_rows; i++) {//for each row
-                keysNames[i] += this.name +"="+ this.outcomes.get(i % this.outcomes.size());//add the name of the variable and the outcome to the key name
+        }
+            for (int i = 0; i < total_rows; i++) {//for each row
+                keysNames[i] += this.name + "=" + this.outcomes.get(i % this.outcomes.size());//add the name of the variable and the outcome to the key name
                 this.cpt.put(keysNames[i], Double.parseDouble(cptArray[i]));//add the key name and the probability to the cpt
             }
-        }
+
     }
 }
 
