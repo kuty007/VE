@@ -46,6 +46,15 @@ public class Variable {
             }
 
     }
+    public ArrayList<String> commonParents(Variable v){
+        ArrayList<String> commonParents = new ArrayList<>();
+        for (String parent : this.parents) {
+            if (v.parents.contains(parent)){
+                commonParents.add(parent);
+            }
+        }
+        return commonParents;
+    }
 }
 
 

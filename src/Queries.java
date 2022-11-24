@@ -36,9 +36,9 @@ public class Queries {
         }
     }
 
-    public ArrayList<LinkedHashMap<String, Double>> SimpleSolve() {
+    public ArrayList<HashMap<Variable,LinkedHashMap<String, Double>>> SimpleSolve() {
         //solve the query using the simple enumeration algorithm
-        ArrayList<LinkedHashMap<String, Double>> quryResults = new ArrayList<>();
+        ArrayList<HashMap<Variable,LinkedHashMap<String, Double>>> quryResults = new ArrayList<>();
         for (String hiddenVariable : hiddenVariables) {
             StringBuilder relventKey = new StringBuilder();
             for (int i = 0; i < evidenceVariablesNames.length; i++) {
@@ -53,34 +53,34 @@ public class Queries {
                         cpt.put(key, bn.BN.get(hiddenVariable).cpt.get(key));
                     }
                 }
-                quryResults.add(cpt);
+                quryResults.add(new HashMap<Variable,LinkedHashMap<String, Double>>(){{put(bn.BN.get(hiddenVariable),cpt);}});
+            } else {
+                quryResults.add(new HashMap<Variable,LinkedHashMap<String, Double>>(){{put(bn.BN.get(hiddenVariable),bn.BN.get(hiddenVariable).cpt);}});
             }
-            else {
-                quryResults.add(bn.BN.get(hiddenVariable).cpt);
-            }
-
-
-
-
-
         }
-        //find all combinations of hidden variables keys with each other
-//        ArrayList<String> combinations = new ArrayList<>();
-//
-//        for (int i = 0; i < quryResults.size(); i++) {
-//            for (int j = i + 1; j < quryResults.size(); j++) {
-//                for (String key1 : quryResults.get(i).keySet()) {
-//                    for (String key2 : quryResults.get(j).keySet()) {
-//                        if (!combinations.contains(key1 + key2)) {
-//                            combinations.add(key1 + key2);
-//                        }
-//                    }
-//                }
-//            }
-//        }
+        //find all combinations of hidden variables keys with each other only if in both of them the evidence variables have the same outcomes
+        ArrayList<String> combinations = new ArrayList<>();
+        for (int i = 0; i < quryResults.size(); i++) {
+            for (int j = i + 1; j < quryResults.size(); j++) {
+                for (Variable key1 : quryResults.get(i).keySet()) {
+                    for (Variable key2 : quryResults.get(j).keySet()) {
+                        ArrayList<String>parents=key1.commonParents(key2);
+                        if(parents.size()!=0){
+
+
+
+                        }
+                    }
+                }
+            }
+        }
+        System.out.println("combinations: " + combinations);
+
+
         return quryResults;
     }
 }
+
 
 
 
