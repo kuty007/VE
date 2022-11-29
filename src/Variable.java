@@ -41,7 +41,7 @@ public class Variable {
             }
         }
             for (int i = 0; i < total_rows; i++) {//for each row
-                keysNames[i] += this.name + "=" + this.outcomes.get(i % this.outcomes.size());//add the name of the variable and the outcome to the key name
+                keysNames[i] += this.name + "=" + this.outcomes.get(i % this.outcomes.size())+ " ";//add the name of the variable and the outcome to the key name
                 this.cpt.put(keysNames[i], Double.parseDouble(cptArray[i]));//add the key name and the probability to the cpt
             }
 
