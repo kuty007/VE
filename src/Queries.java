@@ -8,6 +8,9 @@ public class Queries {
     String[] evidenceVariablesNames;
     String[] hiddenVariables;
     BayesianNetwork bn;
+    AtomicInteger multiplyCounter = new AtomicInteger(0);
+    AtomicInteger addCounter = new AtomicInteger(0);
+    double queryProbability;
 
     public Queries(String query, BayesianNetwork bn) {
         this.query = query;
@@ -135,6 +138,8 @@ public class Queries {
     }
 
     public void solve() {
+        double sum = 0;
+
         //get the combinations of the hidden variables outcomes and the evidence variables outcomes
         StringBuilder base = new StringBuilder();
         for (int i = 0; i < evidenceVariablesNames.length; i++) {
@@ -170,23 +175,43 @@ public class Queries {
         }
         //remove the last comma from each combination
         combinations.replaceAll(s -> s.substring(0, s.length() - 1));
-
+        int counter = 0;
         for (int i = 0; i < bn.BN.get(queryNode.substring(0, 1)).outcomes.size(); i++) {
+            counter++;
+
             //add the query node with outcome i to the combinations and calculate the probability
             ArrayList<String> newCombinations = new ArrayList<>();
             for (String combination : combinations) {
-                newCombinations.add(combination + "," + queryNode.substring(0, 1) + "=" + bn.BN.get(queryNode.substring(0, 1)).outcomes.get(i));
+                newCombinations.add(combination + "," + queryNode.charAt(0) + "=" + bn.BN.get(queryNode.substring(0, 1)).outcomes.get(i));
             }
             System.out.println(newCombinations);
+            int counter2 = 0;
             for (String combination : newCombinations) {
+                counter2++;
+
                 double value = combinationValue(combination);
-                System.out.println("P(" + combination +") = " + value);
+                if (counter == 1 && counter2 == 1) {
+                    sum += value;
+                }
+                else {
+                    sum += value;
+                    addCounter.getAndIncrement();
+                }
 
+                sum += value;
+                System.out.println("value: " + sum);
+                System.out.println("P(" + combination + ") = " + value);
+                System.out.println("multiplyCounter: " + multiplyCounter.get());
 
+            }
+            if ((queryNode.charAt(0) + "=" + bn.BN.get(queryNode.substring(0, 1)).outcomes.get(i)).equals(queryNode)){
+                queryProbability = sum;
             }
 
 
         }
+        System.out.println("P(" + queryNode + ") = " + queryProbability/sum + " multiplyCounter: " + multiplyCounter.get() + " addCounter: " + addCounter.get());
+
 
 
     }
@@ -194,14 +219,19 @@ public class Queries {
 
     public double combinationValue(String combination) {
         String[] arr = combination.split(",");
-        double multiply = 1;
+        double multiply = 0;
+        int counter = 0;
         for (String s : arr) {
-            AtomicInteger multiplyCounter = new AtomicInteger();
+            counter++;
             if (this.bn.BN.get(s.substring(0, s.indexOf("="))).parents.size() == 0) {
-                multiply *= this.bn.BN.get(s.substring(0, s.indexOf("="))).cpt.get(s + " ");
-                multiplyCounter.getAndIncrement();
+                if (counter == 1) {
+                    multiply = this.bn.BN.get(s.substring(0, s.indexOf("="))).cpt.get(s+" ");
+                } else {
+                    multiply *= this.bn.BN.get(s.substring(0, s.indexOf("="))).cpt.get(s+" ");
+                    multiplyCounter.getAndIncrement();
+                }
             } else {
-                ;
+
                 StringBuilder parentValues = new StringBuilder();
                 for (String parent : (this.bn.BN.get(s.substring(0, s.indexOf("="))).parents)) {
                     for (String s1 : arr) {
@@ -210,14 +240,21 @@ public class Queries {
                         }
                     }
                 }
-                multiply *= this.bn.BN.get(s.substring(0, s.indexOf("="))).cpt.get(parentValues + s + " ");
-                multiplyCounter.getAndIncrement();
+                if (counter == 1) {
+                    multiply = this.bn.BN.get(s.substring(0, s.indexOf("="))).cpt.get(parentValues + s + " ");
+                } else {
+
+                    multiply *= this.bn.BN.get(s.substring(0, s.indexOf("="))).cpt.get(parentValues + s + " ");
+                    this.multiplyCounter.getAndIncrement();
+                }
+
             }
+
 
         }
         return multiply;
-
     }
+
 }
 
 
