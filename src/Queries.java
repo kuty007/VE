@@ -29,11 +29,17 @@ public class Queries {
 
         //create an array of hidden variables names
         hiddenVariables = new String[bn.BN.size() - 1 - evidenceVariablesNames.length];
+        System.out.println(hiddenVariables.length);
+        System.out.println(bn.BN.size());
         int i = 0;
         for (String key : bn.BN.keySet()) {
             if (!Arrays.asList(evidenceVariablesNames).contains(key) && (!queryNode.substring(0, 1).equals(key))) {
                 hiddenVariables[i] = key;
                 i++;
+                if (i == hiddenVariables.length) {
+                    break;
+                }
+
             }
 
 
@@ -176,13 +182,13 @@ public class Queries {
         //remove the last comma from each combination
         combinations.replaceAll(s -> s.substring(0, s.length() - 1));
         int counter = 0;
-        for (int i = 0; i < bn.BN.get(queryNode.substring(0, 1)).outcomes.size(); i++) {
+        for (int i = 0; i < bn.BN.get(queryNode.substring(0,queryNode.indexOf("="))).outcomes.size(); i++) {
             counter++;
 
             //add the query node with outcome i to the combinations and calculate the probability
             ArrayList<String> newCombinations = new ArrayList<>();
             for (String combination : combinations) {
-                newCombinations.add(combination + "," + queryNode.charAt(0) + "=" + bn.BN.get(queryNode.substring(0, 1)).outcomes.get(i));
+                newCombinations.add(combination + "," + queryNode.substring(0,queryNode.indexOf("=")) + "=" + bn.BN.get(queryNode.substring(0, queryNode.indexOf("="))).outcomes.get(i));
             }
             System.out.println(newCombinations);
             int counter2 = 0;
@@ -191,7 +197,7 @@ public class Queries {
 
                 double value = combinationValue(combination);
                 if (counter == 1 && counter2 == 1) {
-                    sum += value;
+                    sum = value;
                 }
                 else {
                     sum += value;
@@ -210,7 +216,7 @@ public class Queries {
 
 
         }
-        System.out.println("P(" + queryNode + ") = " + queryProbability/sum + " multiplyCounter: " + multiplyCounter.get() + " addCounter: " + addCounter.get());
+        System.out.println(  query+ "=" + queryProbability/sum + " multiplyCounter: " + multiplyCounter.get() + " addCounter: " + addCounter.get());
 
 
 
@@ -235,7 +241,7 @@ public class Queries {
                 StringBuilder parentValues = new StringBuilder();
                 for (String parent : (this.bn.BN.get(s.substring(0, s.indexOf("="))).parents)) {
                     for (String s1 : arr) {
-                        if (s1.contains(parent)) {
+                         if (s1.contains(parent)) {
                             parentValues.append(s1).append(" ");
                         }
                     }

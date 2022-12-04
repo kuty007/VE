@@ -3,9 +3,13 @@ import java.util.Arrays;
 public class Main {
     public static void main(String[] args) {
         BayesianNetwork bn = new BayesianNetwork();
-        bn.loadBnFromXml("C:\\Users\\asaf7\\IdeaProjects\\algo\\src\\alarm_net.xml");
+//        bn.loadBnFromXml("C:\\Users\\asaf7\\IdeaProjects\\algo\\src\\big_net (1).xml");
 //        System.out.println(bn.BN.get("J").parents.indexOf("B"));
-        Queries q = new Queries("P(B=T|J=T,M=T),1", bn);
+//        Queries q = new Queries("P(B0=v3|C3=T,B2=F,C2=v3),1", bn);
+        bn.loadBnFromXml("C:\\Users\\asaf7\\IdeaProjects\\algo\\src\\alarm_net.xml");
+//      System.out.println(bn.BN.get("C3").cpt.keySet());
+//        System.out.println(bn.BN.get("C3").cpt.get("B1=T B0=v1 C3=T "));
+     Queries q = new Queries("P(J=T|B=T),1", bn);
         q.solve();
 //        System.out.println(q.queryNode);
 //        System.out.println(Arrays.toString(q.evidence));
