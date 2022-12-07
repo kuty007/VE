@@ -6,6 +6,7 @@ public class Variable {
     ArrayList<String> parents;
     ArrayList<String> sons;
     LinkedHashMap<String, Double> cpt;
+    LinkedHashMap<String, Double> cptCopy;
     HashMap<String, Variable> bn;
 
     public Variable(String name, String[] outcomes, HashMap<String, Variable> bn) {
@@ -16,6 +17,8 @@ public class Variable {
         this.name = name;
         this.outcomes.addAll(Arrays.asList(outcomes));
         this.bn = bn;
+        this.cptCopy = this.deepCopy(this.cpt);
+
     }
 
     public void buildCpt(String[] cptArray) {
@@ -54,6 +57,11 @@ public class Variable {
             }
         }
         return commonParents;
+    }
+
+
+    public LinkedHashMap<String, Double> deepCopy(LinkedHashMap<String, Double> original) {
+        return new LinkedHashMap<>(original);
     }
 }
 
