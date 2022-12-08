@@ -160,6 +160,7 @@ public class Queries {
         }
 
         int stepSize = combinations.size();
+        System.out.println("stepSize: " + stepSize);
         for (String hiddenVariable : hiddenVariables) {
             stepSize /= bn.BN.get(hiddenVariable).outcomes.size();
             int counter = 0;

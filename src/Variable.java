@@ -4,8 +4,17 @@ public class Variable {
     String name;
     ArrayList<String> outcomes;
     ArrayList<String> parents;
+
+    public LinkedHashMap<String, Double> getCpt() {
+        return cpt;
+    }
+
+    public void setCpt(LinkedHashMap<String, Double> cpt) {
+        this.cpt = cpt;
+    }
+
     ArrayList<String> sons;
-    LinkedHashMap<String, Double> cpt;
+    LinkedHashMap<String, Double>cpt;
     LinkedHashMap<String, Double> cptCopy;
     HashMap<String, Variable> bn;
 

@@ -15,6 +15,7 @@ import java.util.HashMap;
 
 public class BayesianNetwork {
     public HashMap<String, Variable> BN;
+    public HashMap<String,HashMap<String,Double>> VariableCpts;
 
     public void loadBnFromXml(String path) {
         BN = new HashMap<String, Variable>();
