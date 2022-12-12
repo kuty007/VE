@@ -11,11 +11,12 @@ import org.w3c.dom.Element;
 import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Stack;
 
 
 public class BayesianNetwork {
     public HashMap<String, Variable> BN;
-    public HashMap<String,HashMap<String,Double>> VariableCpts;
+    public HashMap<String, HashMap<String, Double>> VariableCpts;
 
     public void loadBnFromXml(String path) {
         BN = new HashMap<String, Variable>();
@@ -62,13 +63,55 @@ public class BayesianNetwork {
         }
 
     }
-    public String[] getKeys(){
+
+    public String[] getKeys() {
         String[] keys = new String[BN.size()];
-        int i=0;
+        int i = 0;
         for (String key : BN.keySet()) {
-            keys[i]=key;
+            keys[i] = key;
             i++;
         }
         return keys;
+    }
+
+    //set all the Variable color to False
+    public void resetColor() {
+        for (String key : BN.keySet()) {
+            BN.get(key).setColored(false);
+        }
+    }
+
+    //find if variable is ancestor of another variables
+    public boolean isAncestor(String var1, String[] evidenceAndQuery) {
+        Stack<Variable> varStack = new Stack<>();
+        for (String var : evidenceAndQuery) {
+            if (BN.get(var1).sons.contains(var)) {
+                return true;
+            }
+        }
+        if (!BN.get(var1).sons.isEmpty()) {
+            for (String son : BN.get(var1).sons) {
+                BN.get(son).setColored(true);
+                varStack.push(BN.get(son));
+            }
+        }
+        while (!varStack.isEmpty()) {
+            Variable var = varStack.pop();
+            for (String vari : evidenceAndQuery) {
+                if (var.sons.contains(vari)) {
+                    return true;
+                }
+            }
+            if (!var.sons.isEmpty()) {
+                for (String son : var.sons) {
+                    if (!BN.get(son).getColored()) {
+                        BN.get(son).setColored(true);
+                        varStack.push(BN.get(son));
+                    }
+                }
+            }
+        }
+        resetColor();
+        return false;
     }
 }

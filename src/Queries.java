@@ -9,6 +9,7 @@ public class Queries {
     String[] evidence;
     String[] evidenceVariablesNames;
     String[] hiddenVariables;
+    String[] queryAndEvidenceVariables;
     BayesianNetwork bn;
     AtomicInteger multiplyCounter = new AtomicInteger(0);
     AtomicInteger addCounter = new AtomicInteger(0);
@@ -46,6 +47,10 @@ public class Queries {
 
 
         }
+        //create an array of query and evidence variables names
+        queryAndEvidenceVariables = new String[evidenceVariablesNames.length + 1];
+        queryAndEvidenceVariables[0] = queryNodeName;
+        System.arraycopy(evidenceVariablesNames, 0, queryAndEvidenceVariables, 1, queryAndEvidenceVariables.length - 1);
     }
 
     public ArrayList<HashMap<Variable, LinkedHashMap<String, Double>>> SimpleSolve() {

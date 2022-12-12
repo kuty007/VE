@@ -1,6 +1,7 @@
 import java.util.*;
 
 public class Variable {
+
     String name;
     ArrayList<String> outcomes;
     ArrayList<String> parents;
@@ -18,6 +19,16 @@ public class Variable {
     LinkedHashMap<String, Double> cptCopy;
     HashMap<String, Variable> bn;
 
+    public void setColored(Boolean colored) {
+        this.colored = colored;
+    }
+
+    public Boolean getColored() {
+        return colored;
+    }
+
+    Boolean colored = false;
+
     public Variable(String name, String[] outcomes, HashMap<String, Variable> bn) {
         this.outcomes = new ArrayList<>();
         this.parents = new ArrayList<>();
@@ -27,6 +38,7 @@ public class Variable {
         this.outcomes.addAll(Arrays.asList(outcomes));
         this.bn = bn;
         this.cptCopy = this.deepCopy(this.cpt);
+
 
     }
 
