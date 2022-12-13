@@ -53,101 +53,7 @@ public class Queries {
         System.arraycopy(evidenceVariablesNames, 0, queryAndEvidenceVariables, 1, queryAndEvidenceVariables.length - 1);
     }
 
-    public ArrayList<HashMap<Variable, LinkedHashMap<String, Double>>> SimpleSolve() {
-        ArrayList<HashMap<Variable, LinkedHashMap<String, Double>>> quryResults = new ArrayList<>();
-        for (String hiddenVariable : hiddenVariables) {
-            StringBuilder relventKey = new StringBuilder();
-            for (int i = 0; i < evidenceVariablesNames.length; i++) {
-                if (bn.BN.get(hiddenVariable).parents.contains(evidenceVariablesNames[i])) {
-                    relventKey.append(evidence[i]).append(" ");
-                }
-            }
-            LinkedHashMap<String, Double> cpt = new LinkedHashMap<>();
-            if (relventKey.length() != 0) {
-                for (String key : bn.BN.get(hiddenVariable).cpt.keySet()) {
-                    if (key.contains(relventKey.toString())) {
-                        cpt.put(key, bn.BN.get(hiddenVariable).cpt.get(key));
-                    }
-                }
-                quryResults.add(new HashMap<Variable, LinkedHashMap<String, Double>>() {{
-                    put(bn.BN.get(hiddenVariable), cpt);
-                }});
-            } else {
-                quryResults.add(new HashMap<Variable, LinkedHashMap<String, Double>>() {{
-                    put(bn.BN.get(hiddenVariable), bn.BN.get(hiddenVariable).cpt);
-                }});
-            }
-        }
-        //find all combinations of hidden variables keys with each other only if in both of them the evidence variables
-        // have the same outcomes and add team and their values to a new hashmap
-        ArrayList<HashMap<String, Double>> combinations = new ArrayList<>();
-        for (int i = 0; i < quryResults.size(); i++) {
-            for (int j = i + 1; j < quryResults.size(); j++) {
-                for (Variable key1 : quryResults.get(i).keySet()) {
-                    for (Variable key2 : quryResults.get(j).keySet()) {
-                        ArrayList<String> parents = key1.commonParents(key2);
-                        if (parents.size() != 0) {
-                            for (String parent : parents) {
-                                for (String key1Value : quryResults.get(i).get(key1).keySet()) {
-                                    for (String key2Value : quryResults.get(j).get(key2).keySet()) {
-                                        if (key1Value.contains(key2Value.substring(key2Value.indexOf(parent), key2Value.indexOf(" ", key2Value.indexOf(parent))))) {
-                                            // add the keys and their values to a new hashmap
-                                            HashMap<String, Double> newCpt = new HashMap<>();
-                                            newCpt.put(key1Value, quryResults.get(i).get(key1).get(key1Value));
-                                            newCpt.put(key2Value, quryResults.get(j).get(key2).get(key2Value));
-
-                                            combinations.add(newCpt);
-                                        }
-                                    }
-                                }
-                            }
-                            //if the two variables have no common parents but one of them is a parent of the other
-
-                        } else if (key1.parents.contains(key2.name)
-                                || key2.parents.contains(key1.name)) {
-                            for (String key1Value : quryResults.get(i).get(key1).keySet()) {
-                                for (String key2Value : quryResults.get(j).get(key2).keySet()) {
-                                    if (key1Value.contains(key2Value.substring(key2Value.indexOf(key2.name), key2Value.indexOf(" ", key2Value.indexOf(key2.name)))) ||
-                                            key2Value.contains(key1Value.substring(key1Value.indexOf(key1.name), key1Value.indexOf(" ", key1Value.indexOf(key1.name))))) {
-                                        HashMap<String, Double> newCpt = new HashMap<>();
-                                        newCpt.put(key1Value, quryResults.get(i).get(key1).get(key1Value));
-                                        newCpt.put(key2Value, quryResults.get(j).get(key2).get(key2Value));
-                                        combinations.add(newCpt);
-                                    }
-                                }
-                            }
-
-                        }
-                    }
-
-
-                }
-            }
-        }
-
-
-//        System.out.println("combinations: " + combinations + " size: " + combinations.size());
-//        for (int i = 0; i <bn.BN.get(queryNode.substring(0,1)).outcomes.size() ; i++) {
-//            double sum=0;
-//            for (String combination : combinations) {
-//                String[] arr = combination.split(",");
-//                double multiply = 1;
-//                for (String s : arr) {
-//                    multiply *= quryResults.get(0).get(bn.BN.get(s.substring(0, s.indexOf("=")))).get(s);
-//                    multiplyCounter.getAndIncrement();
-//                }
-//                multiply *= bn.BN.get(queryNode).cpt.get(queryNode + "=" + bn.BN.get(queryNode).outcomes.get(i) + " " + combination);
-//                multiplyCounter.getAndIncrement();
-//                sum += multiply;
-//                addCounter.getAndIncrement();
-//            }
-//            System.out.println("P("+queryNode+"="+bn.BN.get(queryNode).outcomes.get(i)+"|"+query.substring(query.indexOf("(")+1,query.indexOf(")"))+") = "+sum);
-
-
-        return quryResults;
-    }
-
-    public void solve() {
+    public String solve() {
         restCounters();
         double sum = 0;
 
@@ -215,7 +121,9 @@ public class Queries {
                 System.out.println("multiplyCounter: " + multiplyCounter.get() + " addCounter: " + addCounter.get());
             }
         }
-        System.out.println(query + "=" + String.format("%.5f", (queryProbability / (sum))) + " multiplyCounter: " + multiplyCounter.get() + " addCounter: " + addCounter.get());
+       String ans = query + "=" + String.format("%.5f", (queryProbability / (sum))) + " multiplyCounter: " + multiplyCounter.get() + " addCounter: " + addCounter.get();
+        System.out.println(ans);
+        return ans;
 
 
     }

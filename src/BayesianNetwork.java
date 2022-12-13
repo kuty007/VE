@@ -1,22 +1,15 @@
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.DocumentBuilder;
-
-import jdk.internal.org.objectweb.asm.tree.analysis.Value;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Node;
 import org.w3c.dom.Element;
-
 import java.io.File;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Stack;
-
-
 public class BayesianNetwork {
     public HashMap<String, Variable> BN;
-    public HashMap<String, HashMap<String, Double>> VariableCpts;
 
     public void loadBnFromXml(String path) {
         BN = new HashMap<String, Variable>();

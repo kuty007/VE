@@ -1,35 +1,72 @@
+import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
 
 public class Main {
+
     public static void main(String[] args) {
-        BayesianNetwork bn = new BayesianNetwork();
-  bn.loadBnFromXml("C:\\Users\\asaf7\\IdeaProjects\\algo\\src\\big_net (1).xml");
+        try {
+//            if (args[0].equals("input.txt") || args[0].equals("input1.txt") || args[0].equals("input2.txt")){
+            writeToFile(args[0]);
+//            }
+        } catch (Exception e) {
+            writeToFile("input.txt");
+        }
+
+    }
+
+    public static void writeToFile(String path) {
+        try {
+            LoadInputFile inputFile = new LoadInputFile(path);
+            PrintWriter writer = new PrintWriter("outputFile.txt", "UTF-8");
+            for (Queries q : inputFile.queries) {
+                if (q.queryType.equals("1")) {
+                    writer.println(q.solve() +"\n");
+                } else {
+                    VariableElimination ve = new VariableElimination(q.bn, q);
+                    writer.println(ve.answer()+"\n");
+                    ;
+                }
+            }
+            writer.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+}
+//        BayesianNetwork bn = new BayesianNetwork();
+//  bn.loadBnFromXml("C:\\Users\\asaf7\\IdeaProjects\\algo\\src\\big_net (1).xml");
 //        System.out.println(bn.BN.get("J").parents.indexOf("B"));
 //     Queries q = new Queries("P(B0=v3|C3=T,B2=F,C2=v3),1", bn);
-//     bn.loadBnFromXml("C:\\Users\\asaf7\\IdeaProjects\\algo\\src\\alarm_net.xml");
-//      System.out.println(bn.BN.get("C3").cpt.keySet());
+//    bn.loadBnFromXml("C:\\Users\\asaf7\\IdeaProjects\\algo\\src\\alarm_net.xml");
+
+//     System.out.println(bn.BN.get("A").cpt.keySet());
 //        print all the keys of the hashmap of bn
 //        System.out.println(Arrays.toString(bn.getKeys()));
 
 //        System.out.println(bn.BN.get("C3").cpt.get("B1=T B0=v1 C3=T "));
 //        Queries q = new Queries("P(D1=F|C1=T,C2=v1,C3=T,A1=T),1", bn);
-     Queries q = new Queries("P(A2=T|C2=v1),2", bn);
+//     Queries q = new Queries("P(A2=T|C2=v1),2", bn);
 
-//        bn.BN.get("C3").cpt.forEach((k, v) -> System.out.println(k + " " + v));
+//       bn.BN.get("A").cpt.forEach((k, v) -> System.out.println(k + " " + v));
 //        System.out.println(bn.isAncestor("M", q.evidenceVariablesNames));
 //    q.solve();
-     VariableElimination ve = new VariableElimination(bn, q);
+//        Queries q= new Queries("P(A=F|E=T,B=F),2", bn);
+//     VariableElimination ve = new VariableElimination(bn, q);
 //       ve.getRelevantCpt();
 //       ve.answer();
-       q= new Queries("P(D1=F|C1=T,C2=v1,C3=T,A1=T),2", bn);
-       ve = new VariableElimination(bn, q);
-       ve.answer();
+
+    //       ve = new VariableElimination(bn, q);
+//        System.out.println(ve.answer());
 //     bn.BN.get("C3").cpt.forEach((k, v) -> System.out.println(k + " " + v));
 //       ve.answer();
-        //LinkedHashMap<String,Double> sa = ve.joinCpt(bn.BN.get("J").cpt, bn.BN.get("A").cpt);
-        //LinkedHashMap<String,Double> sa2 = ve.elimination(sa, "A");
-        //sa2.forEach((k, v) -> System.out.println(k + " " + v));
+    //LinkedHashMap<String,Double> sa = ve.joinCpt(bn.BN.get("J").cpt, bn.BN.get("A").cpt);
+    //LinkedHashMap<String,Double> sa2 = ve.elimination(sa, "A");
+    //sa2.forEach((k, v) -> System.out.println(k + " " + v));
 //       bn.BN.get("A").cpt.forEach((k, v) -> System.out.println(k + " " + v) );;
 //        System.out.println("*************");
 //       bn.BN.get("A").cptCopy.forEach((k, v) -> System.out.println(k + " " + v));;
@@ -38,9 +75,11 @@ public class Main {
 //        System.out.println(Arrays.toString(q.hiddenVariables));
 //        System.out.println(Arrays.toString(q.evidenceVariablesNames));
 //          bn.BN.get("B").cpt.forEach((k, v) -> System.out.println(k + " " + v));
+//    LoadInputFile loadInputFile = new LoadInputFile("input.txt");
+//    outputFile output = new outputFile(loadInputFile.queries);
 
 
-    }
 
 
-}
+
+

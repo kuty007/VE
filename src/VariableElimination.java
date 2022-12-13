@@ -154,7 +154,12 @@ public class VariableElimination {
 
     public String answer() {
         this.query.restCounters();
+        String ans = simpleAns();
+        if (ans != null) {
+            return ans;
+        }
         this.getRelevantCpt();
+
         //crate ArrayList that store the all variables cpt's
         ArrayList<LinkedHashMap<String, Double>> cpts = new ArrayList<>();
         ArrayList<String> relevantVariables = new ArrayList<>();
@@ -224,7 +229,37 @@ public class VariableElimination {
         return result;
 
     }
+
+    public String simpleAns() {
+        int counter = 0;
+        for (String evi : query.evidenceVariablesNames) {
+            if (bn.BN.get(query.queryNodeName).parents.contains(evi)) {
+                counter++;
+            } else {
+                break;
+
+            }
+        }
+        if (counter<bn.BN.get(query.queryNodeName).parents.size()){
+            return null;
+        }
+        StringBuilder key = new StringBuilder();
+        if (counter == bn.BN.get(query.queryNodeName).parents.size()) {
+            //find the key that contains the query variable and it outcome and the evidence variables and their outcomes
+            key = new StringBuilder();
+            for (String evi : query.evidence) {
+                key.append(evi).append(" ");
+            }
+            key.append(query.queryNode).append(" ");
+
+        }
+        String ans = String.format("%.5f", bn.BN.get(query.queryNodeName).cpt.get(key.toString())) + "," + query.addCounter + "," + query.multiplyCounter;
+        return ans;
+    }
+
+
 }
+
 
 
 
