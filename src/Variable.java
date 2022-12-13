@@ -84,6 +84,10 @@ public class Variable {
     public LinkedHashMap<String, Double> deepCopy(LinkedHashMap<String, Double> original) {
         return new LinkedHashMap<>(original);
     }
+
+    public void resetCpt() {
+        setCpt(this.cptCopy);
+    }
 }
 
 

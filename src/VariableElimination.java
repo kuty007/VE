@@ -10,7 +10,6 @@ public class VariableElimination {
     }
 
     public void getRelevantCpt() {
-    //TODO: fix this function replace the string with a list of strings;
         for (String Vari : this.bn.BN.keySet()) {
             this.bn.BN.get(Vari).cptCopy = this.bn.BN.get(Vari).cpt;
             StringBuilder relventKey = new StringBuilder();
@@ -19,10 +18,13 @@ public class VariableElimination {
                     relventKey.append(this.query.evidence[i]).append(" ");
                 }
             }
+            //split the string into an array of strings
             if (relventKey.length() != 0) {
+                String[] relventKeyArray = relventKey.toString().split(" ");
                 LinkedHashMap<String, Double> cpt = new LinkedHashMap<>();
                 for (String key : bn.BN.get(Vari).cpt.keySet()) {
-                    if (key.contains(relventKey.toString())) {
+                    //check if the key contains all the relevant keys from keyArray
+                    if (containsAll(relventKeyArray, key)) {
                         cpt.put(key, bn.BN.get(Vari).cpt.get(key));
                     }
                 }
@@ -32,6 +34,15 @@ public class VariableElimination {
                 }
             }
         }
+    }
+
+    public Boolean containsAll(String[] keyArray, String key) {
+        for (String keyName : keyArray) {
+            if (!key.contains(keyName)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public LinkedHashMap<String, Double> joinCpt(LinkedHashMap<String, Double> cpt1, LinkedHashMap<String, Double> cpt2) {
@@ -57,12 +68,12 @@ public class VariableElimination {
                 boolean flag = true;
                 for (String commonVariable : commonVariables) {//for each common variable
                     if (!key1.substring(key1.indexOf(commonVariable), key1.indexOf(" ", key1.indexOf((commonVariable)))).equals(key2.substring(key2.indexOf(commonVariable), key2.indexOf(" ", key2.indexOf(commonVariable))))) {//if the common variable is not the same in the two keys
-                       flag = false;//set the flag to false
+                        flag = false;//set the flag to false
                         break;
                     }
                 }
                 if (!flag) {//if the flag is false
-                   continue;//continue to the next key in keys2
+                    continue;//continue to the next key in keys2
                 }
                 StringBuilder key = new StringBuilder();//create a string builder to store the new key of the cpt
                 key.append(key1);//add the first key to the string builder
@@ -77,7 +88,9 @@ public class VariableElimination {
 
             }
         }
-
+        for (String key : cpt.keySet()) {
+            System.out.println(key + " " + cpt.get(key));
+        }
         return cpt;
     }
 
@@ -88,6 +101,9 @@ public class VariableElimination {
         //remove the variable name from the cpt keys
         for (int i = 0; i < cpt.keySet().size() - 1; i++) {
             int counter = 1;
+            if (i < 0) {
+                i = 0;
+            }
             String key1 = cpt.keySet().toArray(new String[0])[i];
             ArrayList<String> keyToRemove = new ArrayList<>();
             double newProbability = 0;
@@ -109,11 +125,11 @@ public class VariableElimination {
                     counter++;
                     i--;
                     if (counter == bn.BN.get(variable).outcomes.size()) {
-                        newCpt.put(subKey1.trim(), newProbability);
+                        newCpt.put(subKey1, newProbability);
                         for (String key : keyToRemove) {
                             cpt.remove(key);
                         }
-                   break;
+                        break;
                     }
                 }
             }
@@ -136,25 +152,37 @@ public class VariableElimination {
         return cpt;
     }
 
-    public String[] answer() {
+    public String answer() {
+        this.query.restCounters();
         this.getRelevantCpt();
         //crate ArrayList that store the all variables cpt's
         ArrayList<LinkedHashMap<String, Double>> cpts = new ArrayList<>();
-        ArrayList<String> Revariables = new ArrayList<>();
+        ArrayList<String> relevantVariables = new ArrayList<>();
         for (String vari : this.bn.getKeys()) {
-            if (this.bn.BN.get(vari).cpt.size()>1){
+            if (this.bn.BN.get(vari).cpt.size() > 1) {
                 if (Arrays.asList(query.hiddenVariables).contains(vari)) {
-                    if(bn.isAncestor(vari, query.queryAndEvidenceVariables)){
-                        Revariables.add(vari);
+                    if (bn.isAncestor(vari, query.queryAndEvidenceVariables)) {
+                        relevantVariables.add(vari);
                         cpts.add(this.bn.BN.get(vari).cpt);
                     }
-                }else {
+                } else {
                     cpts.add(this.bn.BN.get(vari).cpt);
                 }
 
             }
         }
-        for (String vari : Revariables) {
+        //sort the relevantVariables according to ABC
+        if (Objects.equals(query.queryType, "2")) {////sort the relevantVariables according to ABC
+            Collections.sort(relevantVariables);
+        }
+        //if the query type is 2 sort the relevantVariables according to the number of parents
+        else if (Objects.equals(query.queryType, "3")) {
+            relevantVariables.sort((o1, o2) -> bn.BN.get(o1).sons.size() - bn.BN.get(o2).sons.size());
+        }
+
+
+        System.out.println("relevant variables are " + relevantVariables);
+        for (String vari : relevantVariables) {
             ArrayList<LinkedHashMap<String, Double>> Hidencpts = new ArrayList<>();
             for (int i = 0; i < cpts.size(); i++) {
                 if (cpts.get(i).keySet().toArray(new String[0])[0].contains(vari)) {
@@ -188,14 +216,12 @@ public class VariableElimination {
             }
         }
         normalize(cpts.get(0));
-        String quryresult = String.format("%.5f",cpts.get(0).get(key));
-        String [] answer = new String[3];
-        answer[0] = ""+query.addCounter;
-        answer[1] = ""+query.multiplyCounter;
-        answer[2] = quryresult;
+        String quryresult = String.format("%.5f", cpts.get(0).get(key));
+        String result = quryresult + "," + query.addCounter + "," + query.multiplyCounter;
+        System.out.println(result);
 
-        System.out.println(answer[0] + " " + answer[1] + " " + answer[2]);
-        return answer;
+        bn.restNet();
+        return result;
 
     }
 }

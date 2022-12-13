@@ -114,4 +114,10 @@ public class BayesianNetwork {
         resetColor();
         return false;
     }
+
+    public void restNet() {
+        for (String key : BN.keySet()) {
+            BN.get(key).resetCpt();
+        }
+    }
 }

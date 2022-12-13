@@ -2,7 +2,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Queries {
-    int queryType;
+    String queryType;
     String query;
     String queryNode;
     String queryNodeName;
@@ -16,7 +16,7 @@ public class Queries {
     double queryProbability = 0;
 
     public Queries(String query, BayesianNetwork bn) {
-        this.queryType = (int) query.charAt(query.length() - 1);
+        this.queryType =  query.substring(query.length()-1);
         this.query = query;
         this.bn = bn;
         String s = query.substring(query.indexOf("(") + 1, query.indexOf(")"));
@@ -148,6 +148,7 @@ public class Queries {
     }
 
     public void solve() {
+        restCounters();
         double sum = 0;
 
         //get the combinations of the hidden variables outcomes and the evidence variables outcomes
@@ -280,6 +281,10 @@ public class Queries {
 
             }
         }
+    }
+    public void restCounters(){
+        multiplyCounter.set(0);
+        addCounter.set(0);
     }
 
 }

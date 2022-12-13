@@ -14,13 +14,16 @@ public class Main {
 
 //        System.out.println(bn.BN.get("C3").cpt.get("B1=T B0=v1 C3=T "));
 //        Queries q = new Queries("P(D1=F|C1=T,C2=v1,C3=T,A1=T),1", bn);
-        Queries q = new Queries("P(B0=v3|C3=T,B2=F,C2=v3),1", bn);
+     Queries q = new Queries("P(A2=T|C2=v1),2", bn);
 
 //        bn.BN.get("C3").cpt.forEach((k, v) -> System.out.println(k + " " + v));
 //        System.out.println(bn.isAncestor("M", q.evidenceVariablesNames));
 //    q.solve();
      VariableElimination ve = new VariableElimination(bn, q);
 //       ve.getRelevantCpt();
+//       ve.answer();
+       q= new Queries("P(D1=F|C1=T,C2=v1,C3=T,A1=T),2", bn);
+       ve = new VariableElimination(bn, q);
        ve.answer();
 //     bn.BN.get("C3").cpt.forEach((k, v) -> System.out.println(k + " " + v));
 //       ve.answer();
