@@ -79,6 +79,7 @@ public class BayesianNetwork {
         Stack<Variable> varStack = new Stack<>();
         for (String var : evidenceAndQuery) {
             if (BN.get(var1).sons.contains(var)) {
+                resetColor();
                 return true;
             }
         }
@@ -92,6 +93,7 @@ public class BayesianNetwork {
             Variable var = varStack.pop();
             for (String vari : evidenceAndQuery) {
                 if (var.sons.contains(vari)) {
+                    resetColor();
                     return true;
                 }
             }

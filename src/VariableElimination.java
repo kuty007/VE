@@ -9,6 +9,9 @@ public class VariableElimination {
         this.query = query;
     }
 
+    /**
+     * this function change each variable CPT to a factor by removing irrelevant values form the CPT
+     */
     public void getRelevantCpt() {
         for (String Vari : this.bn.BN.keySet()) {
             this.bn.BN.get(Vari).cptCopy = this.bn.BN.get(Vari).cpt;
@@ -36,6 +39,12 @@ public class VariableElimination {
         }
     }
 
+    /**
+     * this function check if the key contains all the relevant keys from keyArray
+     * @param keyArray
+     * @param key
+     * @return true if the key contains all the relevant keys from keyArray
+     */
     public Boolean containsAll(String[] keyArray, String key) {
         for (String keyName : keyArray) {
             if (!key.contains(keyName)) {
@@ -45,7 +54,14 @@ public class VariableElimination {
         return true;
     }
 
+    /**
+     * this function join two factors(CPTs)
+     * @param cpt1
+     * @param cpt2
+     * @return the joined factor
+     */
     public LinkedHashMap<String, Double> joinCpt(LinkedHashMap<String, Double> cpt1, LinkedHashMap<String, Double> cpt2) {
+
         LinkedHashMap<String, Double> cpt = new LinkedHashMap<>();
         String[] keys1 = cpt1.keySet().toArray(new String[0]);//get the keys of the first cpt
         String[] keys2 = cpt2.keySet().toArray(new String[0]);//get the keys of the second cpt
@@ -88,13 +104,18 @@ public class VariableElimination {
 
             }
         }
-        for (String key : cpt.keySet()) {
-            System.out.println(key + " " + cpt.get(key));
-        }
+//        for (String key : cpt.keySet()) {
+//            System.out.println(key + " " + cpt.get(key));
+//        }
         return cpt;
     }
 
-
+    /**
+     * this function eliminate a variable from a factor
+     * @param cpt
+     * @param variable
+     * @return
+     */
     public LinkedHashMap<String, Double> elimination(LinkedHashMap<String, Double> cpt, String variable) {
         //create a new cpt to store the new cpt
         LinkedHashMap<String, Double> newCpt = new LinkedHashMap<>();
@@ -134,8 +155,7 @@ public class VariableElimination {
                 }
             }
         }
-        System.out.println("cpt after elimination is of " + variable + newCpt);
-        System.out.println();
+//        System.out.println("cpt after elimination is of " + variable + newCpt);
         return newCpt;
     }
 
@@ -176,16 +196,42 @@ public class VariableElimination {
 
             }
         }
+        //create list of the relevant variables and the query and evidence variables
+
         //sort the relevantVariables according to ABC
         if (Objects.equals(query.queryType, "2")) {////sort the relevantVariables according to ABC
             Collections.sort(relevantVariables);
         }
-        //if the query type is 2 sort the relevantVariables according to the number of parents
+        //if the query type is 3 sort the relevantVariables according to the number of relvantsons
         else if (Objects.equals(query.queryType, "3")) {
-            relevantVariables.sort((o1, o2) -> bn.BN.get(o1).sons.size() - bn.BN.get(o2).sons.size());
+            ArrayList<String> variables = new ArrayList<>(); //create list of the relevant variables and the query and evidence variables
+            variables.addAll(relevantVariables);
+            variables.addAll(Arrays.asList(query.queryAndEvidenceVariables));
+            for (String vari : relevantVariables) {
+                bn.BN.get(vari).setRelevantSonsAndParents(variables);
+
+
+            }
+            //sort the relevantVariables according to the number of relvantsons
+            relevantVariables.sort(new Comparator<String>() {
+                @Override
+                public int compare(String o1, String o2) {
+                    if (bn.BN.get(o1).RelevantSons > bn.BN.get(o2).RelevantSons) {
+                        return 1;
+                    } else if (bn.BN.get(o1).RelevantSons < bn.BN.get(o2).RelevantSons) {
+                        return -1;
+                    }
+                    if (bn.BN.get(o1).cpt.size() > bn.BN.get(o2).cpt.size()) {
+                        return 1;
+                    } else if (bn.BN.get(o1).cpt.size() < bn.BN.get(o2).cpt.size()) {
+                        return -1;
+                    }
+                    return 0;
+
+
+                }
+            });
         }
-
-
         System.out.println("relevant variables are " + relevantVariables);
         for (String vari : relevantVariables) {
             ArrayList<LinkedHashMap<String, Double>> Hidencpts = new ArrayList<>();
@@ -196,12 +242,20 @@ public class VariableElimination {
                     i--;
                 }
             }
-            //sort Hidencpt by the size of the cpt
-            Hidencpts.sort(Comparator.comparingInt(HashMap::size));
+            //sort Hidencpt by the size of the cpt from small to big and if they have the same size then by the Ascii value of the variables names from small to big
+            Hidencpts.sort(new Comparator<LinkedHashMap<String, Double>>() {
+                @Override
+                public int compare(LinkedHashMap<String, Double> o1, LinkedHashMap<String, Double> o2) {
+                    return comp(o1, o2);
+                }
+            });
             while (Hidencpts.size() > 1) {
                 Hidencpts.add(joinCpt(Hidencpts.get(0), Hidencpts.get(1)));
+                //sort Hidencpt by the size of the cpt from small to big and if they have the same size then by the Ascii value of the variables names from small to big
+
                 Hidencpts.remove(0);
                 Hidencpts.remove(0);
+                Hidencpts.sort(this::comp);
             }
 //
 //            }
@@ -225,30 +279,51 @@ public class VariableElimination {
         String result = quryresult + "," + query.addCounter + "," + query.multiplyCounter;
         System.out.println(result);
 
+
         bn.restNet();
         return result;
-
     }
+
+    private int comp(LinkedHashMap<String, Double> o1, LinkedHashMap<String, Double> o2) {
+        if (o1.size() > o2.size()) {
+            return 1;
+        } else if (o1.size() < o2.size()) {
+            return -1;
+        }
+        if (o1.keySet().toArray(new String[0])[0].compareTo(o2.keySet().toArray(new String[0])[0]) > 0) {
+            return 1;
+        } else if (o1.keySet().toArray(new String[0])[0].compareTo(o2.keySet().toArray(new String[0])[0]) < 0) {
+            return -1;
+        }
+        return 0;
+    }
+
 
     public String simpleAns() {
         int counter = 0;
+        if (bn.BN.get(query.queryNodeName).parents.size() == 0) {
+            return null;
+        }
+
         for (String evi : query.evidenceVariablesNames) {
             if (bn.BN.get(query.queryNodeName).parents.contains(evi)) {
                 counter++;
-            } else {
-                break;
 
             }
         }
-        if (counter<bn.BN.get(query.queryNodeName).parents.size()){
+        if (counter < bn.BN.get(query.queryNodeName).parents.size()) {
             return null;
         }
         StringBuilder key = new StringBuilder();
         if (counter == bn.BN.get(query.queryNodeName).parents.size()) {
             //find the key that contains the query variable and it outcome and the evidence variables and their outcomes
             key = new StringBuilder();
-            for (String evi : query.evidence) {
-                key.append(evi).append(" ");
+            for (String evi : bn.BN.get(query.queryNodeName).parents) {
+                key.append(query.query, query.query.indexOf(evi), query.query.indexOf(",", query.query.indexOf(evi))).append(" ");
+                //if key contains ") " then remove it
+                if (key.toString().contains(")")) {
+                    key = new StringBuilder(key.substring(0, key.length() -2)).append(" ");
+                }
             }
             key.append(query.queryNode).append(" ");
 
@@ -256,9 +331,10 @@ public class VariableElimination {
         String ans = String.format("%.5f", bn.BN.get(query.queryNodeName).cpt.get(key.toString())) + "," + query.addCounter + "," + query.multiplyCounter;
         return ans;
     }
-
-
 }
+
+
+
 
 
 

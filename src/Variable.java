@@ -15,9 +15,24 @@ public class Variable {
     }
 
     ArrayList<String> sons;
-    LinkedHashMap<String, Double>cpt;
+    LinkedHashMap<String, Double> cpt;
     LinkedHashMap<String, Double> cptCopy;
     HashMap<String, Variable> bn;
+
+    public void setRelevantSonsAndParents(ArrayList<String> vars) {
+        if (this.RelevantSons != 0) {
+            this.RelevantSons = 0;
+        }
+        int counter = 0;
+        for (String Var : vars) {
+            if (this.sons.contains(Var) || this.parents.contains(Var)) {
+                counter++;
+            }
+        }
+        RelevantSons = counter;
+    }
+
+    int RelevantSons = 0;
 
     public void setColored(Boolean colored) {
         this.colored = colored;
@@ -38,7 +53,6 @@ public class Variable {
         this.outcomes.addAll(Arrays.asList(outcomes));
         this.bn = bn;
         this.cptCopy = this.deepCopy(this.cpt);
-
 
     }
 
@@ -64,16 +78,17 @@ public class Variable {
                 }
             }
         }
-            for (int i = 0; i < total_rows; i++) {//for each row
-                keysNames[i] += this.name + "=" + this.outcomes.get(i % this.outcomes.size())+ " ";//add the name of the variable and the outcome to the key name
-                this.cpt.put(keysNames[i], Double.parseDouble(cptArray[i]));//add the key name and the probability to the cpt
-            }
+        for (int i = 0; i < total_rows; i++) {//for each row
+            keysNames[i] += this.name + "=" + this.outcomes.get(i % this.outcomes.size()) + " ";//add the name of the variable and the outcome to the key name
+            this.cpt.put(keysNames[i], Double.parseDouble(cptArray[i]));//add the key name and the probability to the cpt
+        }
 
     }
-    public ArrayList<String> commonParents(Variable v){
+
+    public ArrayList<String> commonParents(Variable v) {
         ArrayList<String> commonParents = new ArrayList<>();
         for (String parent : this.parents) {
-            if (v.parents.contains(parent)){
+            if (v.parents.contains(parent)) {
                 commonParents.add(parent);
             }
         }
@@ -88,6 +103,7 @@ public class Variable {
     public void resetCpt() {
         setCpt(this.cptCopy);
     }
+
 }
 
 

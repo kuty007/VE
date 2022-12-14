@@ -15,15 +15,21 @@ public class Queries {
     AtomicInteger addCounter = new AtomicInteger(0);
     double queryProbability = 0;
 
+    /**
+     * this function gets the query as a string and the bayesian network and parses the query
+     * to the relevant variables for solving the query
+     * @param query
+     * @param bn
+     */
     public Queries(String query, BayesianNetwork bn) {
-        this.queryType =  query.substring(query.length()-1);
+        this.queryType =  query.substring(query.length()-1);//get the query type
         this.query = query;
         this.bn = bn;
-        String s = query.substring(query.indexOf("(") + 1, query.indexOf(")"));
-        String[] arr = s.split("\\|");
-        queryNode = arr[0];
-        queryNodeName = queryNode.substring(0, queryNode.indexOf("="));
-        evidence = arr[1].split(",");
+        String s = query.substring(query.indexOf("(") + 1, query.indexOf(")"));//get the query without the brackets
+        String[] arr = s.split("\\|");//split the query to the query node and the evidence
+        queryNode = arr[0];//get the query node
+        queryNodeName = queryNode.substring(0, queryNode.indexOf("="));//get the query node name
+        evidence = arr[1].split(",");//get the evidence
         //crate an array of evidence variables names
         String[] evidenceVariablesNames = new String[evidence.length];
         for (int i = 0; i < evidence.length; i++) {
@@ -53,15 +59,21 @@ public class Queries {
         System.arraycopy(evidenceVariablesNames, 0, queryAndEvidenceVariables, 1, queryAndEvidenceVariables.length - 1);
     }
 
+    /**
+     * this function solves the query type 1
+     * Basic inference
+     *
+     */
     public String solve() {
-        restCounters();
-        double sum = 0;
+        restCounters();//reset the counters
+        double sum = 0;//initialize the sum
 
         //get the combinations of the hidden variables outcomes and the evidence variables outcomes
-        StringBuilder base = new StringBuilder();
+        StringBuilder base = new StringBuilder();//create a string builder for the base
         for (int i = 0; i < evidenceVariablesNames.length; i++) {
-            base.append(evidence[i]).append(",");
+            base.append(evidence[i]).append(",");//add the evidence variables outcomes to the base
         }
+        //find all the combinations of the hidden variables outcomes
         int numOfCombinations = 1;
         for (String hiddenVariable : hiddenVariables) {
             numOfCombinations *= bn.BN.get(hiddenVariable).outcomes.size();
@@ -121,30 +133,34 @@ public class Queries {
                 System.out.println("multiplyCounter: " + multiplyCounter.get() + " addCounter: " + addCounter.get());
             }
         }
-       String ans = query + "=" + String.format("%.5f", (queryProbability / (sum))) + " multiplyCounter: " + multiplyCounter.get() + " addCounter: " + addCounter.get();
+       String ans = String.format("%.5f", (queryProbability / (sum))) +"," + addCounter.get()+ "," + multiplyCounter.get();
         System.out.println(ans);
         return ans;
 
 
     }
 
-
+    /**
+     * this function gets a combination of variables and returns the probability of the combination
+     * @param combination
+     * @return
+     */
     public double combinationValue(String combination) {
-        String[] arr = combination.split(",");
+        String[] arr = combination.split(",");//split the combination to the variables
         double multiply = 0;
         int counter = 0;
         for (String s : arr) {
             counter++;
-            if (this.bn.BN.get(s.substring(0, s.indexOf("="))).parents.size() == 0) {
+            if (this.bn.BN.get(s.substring(0, s.indexOf("="))).parents.size() == 0) {//if the variable has no parents
                 if (counter == 1) {
-                    multiply = this.bn.BN.get(s.substring(0, s.indexOf("="))).cpt.get(s + " ");
+                    multiply = this.bn.BN.get(s.substring(0, s.indexOf("="))).cpt.get(s + " ");//get the probability of the variable
                 } else {
                     multiply *= this.bn.BN.get(s.substring(0, s.indexOf("="))).cpt.get(s + " ");
                     multiplyCounter.getAndIncrement();
                 }
-            } else {
+            } else {//if the variable has parents
 
-                StringBuilder parentValues = new StringBuilder();
+                StringBuilder parentValues = new StringBuilder();//create a string builder for the parents values
                 for (String parent : (this.bn.BN.get(s.substring(0, s.indexOf("="))).parents)) {
                     for (String s1 : arr) {
                         if (s1.contains(parent)) {
@@ -153,7 +169,7 @@ public class Queries {
                     }
                 }
                 if (counter == 1) {
-                    multiply = this.bn.BN.get(s.substring(0, s.indexOf("="))).cpt.get(parentValues + s + " ");
+                    multiply = this.bn.BN.get(s.substring(0, s.indexOf("="))).cpt.get(parentValues + s + " ");//get the probability of the variable
                 } else {
 
                     multiply *= this.bn.BN.get(s.substring(0, s.indexOf("="))).cpt.get(parentValues + s + " ");
@@ -163,33 +179,12 @@ public class Queries {
             }
 
         }
-        return multiply;
+        return multiply;//return the probability of the combination
     }
 
-    public void getRelevantCpt() {
-        for (String Vari : bn.BN.keySet()) {
-            bn.BN.get(Vari).cptCopy = bn.BN.get(Vari).cpt;
-            StringBuilder relventKey = new StringBuilder();
-            for (int i = 0; i < evidenceVariablesNames.length; i++) {
-                if (bn.BN.get(Vari).parents.contains(evidenceVariablesNames[i]) || bn.BN.get(Vari).name.equals(evidenceVariablesNames[i])) {
-                    relventKey.append(evidence[i]).append(" ");
-                }
-            }
-
-            if (relventKey.length() != 0) {
-                LinkedHashMap<String, Double> cpt = new LinkedHashMap<>();
-                for (String key : bn.BN.get(Vari).cpt.keySet()) {
-                    if (key.contains(relventKey.toString())) {
-                        cpt.put(key, bn.BN.get(Vari).cpt.get(key));
-                    }
-                }
-                {
-                    bn.BN.get(Vari).cpt = cpt;
-                }
-
-            }
-        }
-    }
+    /**
+     * this function resets the counters
+     */
     public void restCounters(){
         multiplyCounter.set(0);
         addCounter.set(0);
