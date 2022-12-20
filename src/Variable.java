@@ -1,10 +1,40 @@
 import java.util.*;
 
 public class Variable {
-
+    final static int UNVISITED = 0, FROM_CHILD = 1, FROM_PARENT = 2;
     String name;
     ArrayList<String> outcomes;
     ArrayList<String> parents;
+
+    public int getVisitState() {
+        return visitState;
+    }
+
+    public void setVisitState(int visitState) {
+        this.visitState = visitState;
+    }
+
+    int visitState = UNVISITED;
+
+    public boolean isEvidence() {
+        return isEvidence;
+    }
+
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+
+    public void setEvidence(boolean evidence) {
+        isEvidence = evidence;
+    }
+
+    boolean isEvidence = false;
 
     public LinkedHashMap<String, Double> getCpt() {
         return cpt;
@@ -20,19 +50,16 @@ public class Variable {
     HashMap<String, Variable> bn;
 
     public void setRelevantSonsAndParents(ArrayList<String> vars) {
-        if (this.RelevantSons != 0) {
-            this.RelevantSons = 0;
-        }
         int counter = 0;
         for (String Var : vars) {
             if (this.sons.contains(Var) || this.parents.contains(Var)) {
                 counter++;
             }
         }
-        RelevantSons = counter;
+        relevantNeighbors = counter;
     }
 
-    int RelevantSons = 0;
+    int relevantNeighbors = 0;
 
     public void setColored(Boolean colored) {
         this.colored = colored;
@@ -102,6 +129,9 @@ public class Variable {
 
     public void resetCpt() {
         setCpt(this.cptCopy);
+    }
+    public void restVisitState(){
+        this.visitState = UNVISITED;
     }
 
 }

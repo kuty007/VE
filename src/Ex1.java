@@ -14,29 +14,32 @@ public class Ex1 {
 //        }
         BayesianNetwork bn = new BayesianNetwork();
         bn.loadBnFromXml("C:\\Users\\asaf7\\IdeaProjects\\algo\\src\\alarm_net.xml");
-        Queries q= new Queries("P(B=T|J=T,M=T),2", bn);
-        VariableElimination ve = new VariableElimination(bn, q);
-        System.out.println(ve.answer());
+        Queries q = new Queries("P(M=T|J=T,A=T),1", bn);
+        bayesBall bb = new bayesBall(q, bn);
+        System.out.println(bb.bayesBallAlgo(bn.BN.get("M"), bn.BN.get("B")));
 
 
     }
 
     /**
      * this function loads the input file and writes the output to the output file
+     *
      * @param path
      */
     public static void writeToFile(String path) {
         try {
             LoadInputFile inputFile = new LoadInputFile(path);
-            PrintWriter writer = new PrintWriter("outputFile.txt", "UTF-8");
+            PrintWriter writer = new PrintWriter("output.txt", "UTF-8");
             for (Queries q : inputFile.queries) {
-                if (q.queryType.equals("1")) {
-                    writer.println(q.solve());
-                } else {
-                    VariableElimination ve = new VariableElimination(q.bn, q);
-                    writer.println(ve.answer());
-
-                    ;
+                try {
+                    if (q.queryType.equals("1")) {
+                        writer.println(q.solve());
+                    } else {
+                        VariableElimination ve = new VariableElimination(q.bn, q);
+                        writer.println(ve.answer());
+                    }
+                } catch (Exception e) {
+                    writer.println("error");
                 }
             }
             writer.close();

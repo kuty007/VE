@@ -10,7 +10,11 @@ import java.util.HashMap;
 import java.util.Stack;
 public class BayesianNetwork {
     public HashMap<String, Variable> BN;
-
+    /**
+     * this function gets the xml file and parses it to a bayesian network
+     *
+     * @param path
+     */
     public void loadBnFromXml(String path) {
         BN = new HashMap<String, Variable>();
         try {
@@ -57,6 +61,9 @@ public class BayesianNetwork {
 
     }
 
+    /**
+     * this function returns the keys of the hashmap
+     */
     public String[] getKeys() {
         String[] keys = new String[BN.size()];
         int i = 0;
@@ -67,14 +74,23 @@ public class BayesianNetwork {
         return keys;
     }
 
-    //set all the Variable color to False
+    /**
+     * set all the Variable color to False
+     */
     public void resetColor() {
         for (String key : BN.keySet()) {
             BN.get(key).setColored(false);
         }
     }
 
-    //find if variable is ancestor of another variables
+    /**
+     * find if variable is ancestor of another variables
+     *
+     * @param var1
+     * @param evidenceAndQuery
+     * @return true if var1 is ancestor of one of the variables in evidenceAndQuery
+     */
+
     public boolean isAncestor(String var1, String[] evidenceAndQuery) {
         Stack<Variable> varStack = new Stack<>();
         for (String var : evidenceAndQuery) {
@@ -109,10 +125,10 @@ public class BayesianNetwork {
         resetColor();
         return false;
     }
-
     public void restNet() {
         for (String key : BN.keySet()) {
             BN.get(key).resetCpt();
         }
+        resetColor();
     }
 }

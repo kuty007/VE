@@ -18,11 +18,12 @@ public class Queries {
     /**
      * this function gets the query as a string and the bayesian network and parses the query
      * to the relevant variables for solving the query
+     *
      * @param query
      * @param bn
      */
     public Queries(String query, BayesianNetwork bn) {
-        this.queryType =  query.substring(query.length()-1);//get the query type
+        this.queryType = query.substring(query.length() - 1);//get the query type
         this.query = query;
         this.bn = bn;
         String s = query.substring(query.indexOf("(") + 1, query.indexOf(")"));//get the query without the brackets
@@ -36,8 +37,6 @@ public class Queries {
             evidenceVariablesNames[i] = evidence[i].substring(0, evidence[i].indexOf("="));
         }
         this.evidenceVariablesNames = evidenceVariablesNames;
-
-
         //create an array of hidden variables names
         hiddenVariables = new String[bn.BN.size() - 1 - evidenceVariablesNames.length];
         System.out.println(hiddenVariables.length);
@@ -47,11 +46,7 @@ public class Queries {
             if (!Arrays.asList(evidenceVariablesNames).contains(key) && (!queryNodeName.equals(key))) {
                 hiddenVariables[i] = key;
                 i++;
-
-
             }
-
-
         }
         //create an array of query and evidence variables names
         queryAndEvidenceVariables = new String[evidenceVariablesNames.length + 1];
@@ -62,9 +57,11 @@ public class Queries {
     /**
      * this function solves the query type 1
      * Basic inference
-     *
      */
     public String solve() {
+        if (directAns()!=null){
+            return directAns();
+        }
         restCounters();//reset the counters
         double sum = 0;//initialize the sum
 
@@ -82,7 +79,7 @@ public class Queries {
         for (int i = 0; i < numOfCombinations; i++) {
             combinations.add(base.toString());
         }
-
+        //add the hidden variables outcomes to the combinations array
         int stepSize = combinations.size();
         System.out.println("stepSize: " + stepSize);
         for (String hiddenVariable : hiddenVariables) {
@@ -113,7 +110,7 @@ public class Queries {
             for (String combination : combinations) {
                 newCombinations.add(combination + "," + queryNodeName + "=" + bn.BN.get(queryNodeName).outcomes.get(i));
             }
-            System.out.println(newCombinations);
+//            System.out.println(newCombinations);
             int counter2 = 0;
             for (String combination : newCombinations) {
                 counter2++;
@@ -129,12 +126,16 @@ public class Queries {
                     addCounter.getAndIncrement();
                 }
 
-                System.out.println("P(" + combination + ") = " + value);
-                System.out.println("multiplyCounter: " + multiplyCounter.get() + " addCounter: " + addCounter.get());
+//                System.out.println("P(" + combination + ") = " + value);
+//                System.out.println("multiplyCounter: " + multiplyCounter.get() + " addCounter: " + addCounter.get());
             }
+            System.out.println("sum="+sum +bn.BN.get(queryNodeName).outcomes.get(i)) ;
         }
-       String ans = String.format("%.5f", (queryProbability / (sum))) +"," + addCounter.get()+ "," + multiplyCounter.get();
-        System.out.println(ans);
+        System.out.println(queryProbability);
+        System.out.println(sum-queryProbability);
+        System.out.println(sum);
+        String ans = String.format("%.5f", (queryProbability / (sum))) + "," + addCounter.get() + "," + multiplyCounter.get();
+//        System.out.println(ans);
         return ans;
 
 
@@ -142,6 +143,7 @@ public class Queries {
 
     /**
      * this function gets a combination of variables and returns the probability of the combination
+     *
      * @param combination
      * @return
      */
@@ -185,12 +187,49 @@ public class Queries {
     /**
      * this function resets the counters
      */
-    public void restCounters(){
+    public void restCounters() {
         multiplyCounter.set(0);
         addCounter.set(0);
     }
+    /**
+     * this function check if we can solve the query immediately
+     * by check if all the parents of the query variable are evidence variables
+     * and if they are get the value of the query  from the query variable cpt
+     * @return the result of the query or null if we can't solve the query immediately
+     */
+    public String directAns() {
+        int counter = 0;
+        if (bn.BN.get(this.queryNodeName).parents.size() == 0) {
+            return null;
+        }
+        for (String evi : this.evidenceVariablesNames) {
+            if (bn.BN.get(this.queryNodeName).parents.contains(evi)) {
+                counter++;
+            }
+        }
+        if (counter < bn.BN.get(this.queryNodeName).parents.size()) {
+            return null;
+        }
+        StringBuilder key = new StringBuilder();
+        if (counter == bn.BN.get(this.queryNodeName).parents.size()) {
+            //find the key that contains the query variable and it outcome and the evidence variables and their outcomes
+            key = new StringBuilder();
+            for (String evi : bn.BN.get(this.queryNodeName).parents) {
+                key.append(this.query, this.query.indexOf(evi), this.query.indexOf(",", this.query.indexOf(evi))).append(" ");
+                //if key contains ") " then remove it
+                if (key.toString().contains(")")) {
+                    key = new StringBuilder(key.substring(0, key.length() -2)).append(" ");
+                }
+            }
+            key.append(this.queryNode).append(" ");
 
+        }
+        String ans = String.format("%.5f", bn.BN.get(this.queryNodeName).cpt.get(key.toString())) + "," + this.addCounter + "," + this.multiplyCounter;
+        return ans;
+    }
 }
+
+
 
 
 

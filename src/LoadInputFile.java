@@ -20,7 +20,7 @@ public class LoadInputFile {
             String XmlPath = "";
             if (scanner.hasNextLine()) {
                 XmlPath = scanner.nextLine();
-                String absolutePath =FileSystems.getDefault().getPath(XmlPath).toAbsolutePath().toString();
+                String absolutePath = FileSystems.getDefault().getPath(XmlPath).toAbsolutePath().toString();
                 System.out.println(absolutePath);
                 this.bn.loadBnFromXml(absolutePath);
             }
