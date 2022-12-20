@@ -131,7 +131,7 @@ public class Queries {
             }
             System.out.println("sum="+sum +bn.BN.get(queryNodeName).outcomes.get(i)) ;
         }
-        System.out.println(queryProbability);
+        System.out.println(" מווו"+queryProbability);
         System.out.println(sum-queryProbability);
         System.out.println(sum);
         String ans = String.format("%.5f", (queryProbability / (sum))) + "," + addCounter.get() + "," + multiplyCounter.get();
@@ -165,7 +165,7 @@ public class Queries {
                 StringBuilder parentValues = new StringBuilder();//create a string builder for the parents values
                 for (String parent : (this.bn.BN.get(s.substring(0, s.indexOf("="))).parents)) {
                     for (String s1 : arr) {
-                        if (s1.contains(parent)) {
+                        if (s1.substring(0,s1.indexOf("=")).equals((parent))){
                             parentValues.append(s1).append(" ");
                         }
                     }

@@ -214,22 +214,24 @@ public class VariableElimination {
         }
         //if the query type is 3 sort the relevantVariables according to the number of relevant neighbors
         else if (Objects.equals(query.queryType, "3")) {
-//            relevantVariables = removeAncestors(relevantVariables);
-//            ArrayList<LinkedHashMap<String, Double>> newCpts = new ArrayList<>();
-//            for (String vari : relevantVariables) {
-//                newCpts.add(this.bn.BN.get(vari).cpt);
-//            }
-//            cpts = newCpts;
-//            cpts.add(this.bn.BN.get(query.queryNodeName).cpt);
-//            System.out.println(cpts);
-
-
+            relevantVariables = removeUsingBayesBall(relevantVariables);
+            ArrayList<LinkedHashMap<String, Double>> newCpts = new ArrayList<>();
+            for (String vari : relevantVariables) {
+                newCpts.add(this.bn.BN.get(vari).cpt);
+            }
+            for (String vari : query.evidenceVariablesNames) {
+                newCpts.add(this.bn.BN.get(vari).cpt);
+            }
+            cpts = newCpts;//update the cpts
+            cpts.add(this.bn.BN.get(query.queryNodeName).cpt);
             ArrayList<String> variables = new ArrayList<>(); //create list of the relevant variables and the query and evidence variables
             variables.addAll(relevantVariables);
             variables.addAll(Arrays.asList(query.queryAndEvidenceVariables));
             for (String vari : relevantVariables) {
                 bn.BN.get(vari).setRelevantSonsAndParents(variables);
             }
+
+
             //sort the relevantVariables according to the number of relevant
             // neighbors and if they are equal sort them according to cpt size
             relevantVariables.sort(new Comparator<String>() {
@@ -343,27 +345,16 @@ public class VariableElimination {
     }
 
 
-//    public ArrayList<String> removeAncestors(ArrayList<String> relevantVariables) {
-//        ArrayList<String> evidenceParents = new ArrayList<>();
-//        for (String vari : bn.BN.get(query.queryNodeName).parents) {
-//            //convrte array to arraylist
-//            if (Arrays.asList(query.evidenceVariablesNames).contains(vari)) {
-//                evidenceParents.add(vari);
-//            }
-//        }
-//        for (int i = 0; i<relevantVariables.size();i++) {
-//            for (String evar : evidenceParents) {
-//                if (bn.BN.get(relevantVariables.get(i)).sons.contains(evar)&&!bn.BN.get(relevantVariables.get(i)).sons.contains(query.queryNodeName)) {
-//                    relevantVariables.remove(relevantVariables.get(i));
-//                    i--;
-//                    if (i < 0) {
-//                        i = 0;
-//                    }
-//                }
-//            }
-//        }
-//        return relevantVariables;
-//    }
+    public ArrayList<String> removeUsingBayesBall(ArrayList<String> relevantVariables) {
+        bayesBall bs = new bayesBall(query, bn);
+        for (int i = 0; i < relevantVariables.size(); i++) {
+            if (!bs.bayesBallAlgo(bn.BN.get(query.queryNodeName), bn.BN.get(relevantVariables.get(i)))) {
+                relevantVariables.remove(i);
+                i--;
+            }
+        }
+        return relevantVariables;
+    }
 }
 
 //    /**

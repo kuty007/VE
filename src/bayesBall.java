@@ -25,6 +25,7 @@ public class bayesBall {
             Variable var = queue.poll();
             if (var.equals(varToReach)) {
                 resetVisitState();
+                resetEvidence();
                 return true;
             }
             if (!var.isEvidence() && var.getVisitState() == Variable.FROM_CHILD) {
@@ -59,6 +60,7 @@ public class bayesBall {
             }
 
         }
+        resetEvidence();
         resetVisitState();
         return false;
 
@@ -67,6 +69,11 @@ public class bayesBall {
     public void resetVisitState() {
         for (String var : bn.BN.keySet()) {
             bn.BN.get(var).restVisitState();
+        }
+    }
+    public void resetEvidence() {
+        for (String var : bn.BN.keySet()) {
+            bn.BN.get(var).setEvidence(false);
         }
     }
 }
