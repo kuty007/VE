@@ -5,6 +5,9 @@ public class Variable {
     String name;
     ArrayList<String> outcomes;
     ArrayList<String> parents;
+    Boolean colored = false;
+    boolean isEvidence = false;
+    int relevantNeighbors = 0;
 
     public int getVisitState() {
         return visitState;
@@ -34,7 +37,7 @@ public class Variable {
         isEvidence = evidence;
     }
 
-    boolean isEvidence = false;
+    
 
     public LinkedHashMap<String, Double> getCpt() {
         return cpt;
@@ -59,7 +62,7 @@ public class Variable {
         relevantNeighbors = counter;
     }
 
-    int relevantNeighbors = 0;
+    
 
     public void setColored(Boolean colored) {
         this.colored = colored;
@@ -69,7 +72,7 @@ public class Variable {
         return colored;
     }
 
-    Boolean colored = false;
+    
 
     public Variable(String name, String[] outcomes, HashMap<String, Variable> bn) {
         this.outcomes = new ArrayList<>();
